@@ -1,0 +1,5 @@
+1. Chat/Düþünme modeli (Yaklaþýk 4.7 GB - Ýnternet hýzýna göre biraz sürebilir)
+docker exec -it local_ollama ollama run llama3
+
+2. Metinleri vektöre çevirme (Embedding) modeli (Yaklaþýk 400 MB)
+docker exec -it local_ollama ollama pull mxbai-embed-large
