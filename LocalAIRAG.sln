@@ -7,8 +7,15 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalAIRAG.Domain", "LocalA
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution Items", "{8EC462FD-D22E-90A8-E5CE-7E832BA40C5D}"
 	ProjectSection(SolutionItems) = preProject
+		docker-compose.yml = docker-compose.yml
 		ollama.txt = ollama.txt
 	EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalAIRAG.Application", "LocalAIRAG.Application\LocalAIRAG.Application.csproj", "{9E5C54F6-E62E-4576-A4C3-121E5A55CB56}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalAIRAG.Infrastructure", "LocalAIRAG.Infrastructure\LocalAIRAG.Infrastructure.csproj", "{54066179-5D11-4EF7-B327-18D7E9A813D4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "LocalAIRAG.WebAPI", "LocalAIRAG.WebAPI\LocalAIRAG.WebAPI.csproj", "{C4A9179C-6C4C-4ABC-BDB0-CD0934EC210F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,6 +27,18 @@ Global
 		{CD77C73F-5E33-4287-AFE4-9A3EC0C8827C}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{CD77C73F-5E33-4287-AFE4-9A3EC0C8827C}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{CD77C73F-5E33-4287-AFE4-9A3EC0C8827C}.Release|Any CPU.Build.0 = Release|Any CPU
+		{9E5C54F6-E62E-4576-A4C3-121E5A55CB56}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{9E5C54F6-E62E-4576-A4C3-121E5A55CB56}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{9E5C54F6-E62E-4576-A4C3-121E5A55CB56}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{9E5C54F6-E62E-4576-A4C3-121E5A55CB56}.Release|Any CPU.Build.0 = Release|Any CPU
+		{54066179-5D11-4EF7-B327-18D7E9A813D4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{54066179-5D11-4EF7-B327-18D7E9A813D4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{54066179-5D11-4EF7-B327-18D7E9A813D4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{54066179-5D11-4EF7-B327-18D7E9A813D4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C4A9179C-6C4C-4ABC-BDB0-CD0934EC210F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C4A9179C-6C4C-4ABC-BDB0-CD0934EC210F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C4A9179C-6C4C-4ABC-BDB0-CD0934EC210F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C4A9179C-6C4C-4ABC-BDB0-CD0934EC210F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
