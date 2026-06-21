@@ -43,9 +43,10 @@ namespace LocalAIRAG.Application.Features.Chat
 			var contextText = string.Join("\n\n--- CHUNK ---\n\n", similarChunks.Select(c => c.Text));
 
 			// Adım 4: Prompt Engineering - Kurumsal kural setini ve bağlamı hazırla
-			var systemPrompt = "Sen şirkete ait dökümanları analiz eden kurumsal bir yapay zeka asistanısın. " +
-												 "Sana aşağıda sağlanan 'Bağlam' (Context) verilerini kullanarak kullanıcının sorusunu yanıtla. " +
-												 "Eğer sorunun cevabı sağlanan bağlam içerisinde yoksa, bilgiyi dışarıdan uydurma, dürüstçe 'Bu bilgi dökümanlarda bulunmuyor' de.";
+			var systemPrompt = "Sen kurumsal dökümanları analiz eden bir yapay zeka asistanısın. " +
+												 "Sana sağlanan 'Bağlam' verilerini temel alarak kullanıcının sorusunu yanıtla. " +
+												 "Eğer sorunun cevabı dökümanda yoksa dürüstçe 'Bu bilgi dökümanlarda bulunmuyor' de. " +
+												 "Lütfen yanıtını her zaman akıcı bir Türkçe ile hazırla.";
 
 			var finalPrompt = $"[Bağlam Verileri]:\n{contextText}\n\n[Kullanıcı Sorusu]:\n{request.Question}";
 

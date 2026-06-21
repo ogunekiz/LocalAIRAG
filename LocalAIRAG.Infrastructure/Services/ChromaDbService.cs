@@ -25,27 +25,23 @@ namespace LocalAIRAG.Infrastructure.Services
 		// 1. Chunk'ları ve Vektörleri ChromaDB'ye Kaydetme
 		public async Task SaveChunksAsync(List<DocumentChunk> chunks)
 		{
+			// 1. Önce koleksiyonun var olduğundan EMİN OLALIM (Yoksa sıfırdan yaratacak)
 			await EnsureCollectionExistsAsync();
 
-			// ChromaDB bizden id'ler, vektörler (embeddings) ve döküman metinleri (documents) için ayrı listeler bekler
-			var ids = chunks.Select(c => c.Id).ToList();
-			var embeddings = chunks.Select(c => c.Embedding).ToList();
-			var documents = chunks.Select(c => c.Text).ToList();
-			var metadatas = chunks.Select(c => new { documentId = c.DocumentId }).ToList();
-
-			var requestBody = new
-			{
-				ids = ids,
-				embeddings = embeddings,
-				documents = documents,
-				metadatas = metadatas
-			};
-
-			// Koleksiyon id'sini alıp dökümanları eklemek için önce koleksiyonu çekiyoruz
+			// 2. Koleksiyonun sistemdeki ID'sini almak için istek atıyoruz
 			var collectionResponse = await _httpClient.GetFromJsonAsync<ChromaCollectionResponse>($"/api/v1/collections/{CollectionName}");
 
 			if (collectionResponse != null)
 			{
+				var requestBody = new
+				{
+					ids = chunks.Select(c => c.Id).ToList(),
+					embeddings = chunks.Select(c => c.Embedding).ToList(),
+					documents = chunks.Select(c => c.Text).ToList(),
+					metadatas = chunks.Select(c => new { documentId = c.DocumentId }).ToList()
+				};
+
+				// 3. Kararlı sürüm (0.4.15) için resmi döküman ekleme endpoint'i
 				var response = await _httpClient.PostAsJsonAsync($"/api/v1/collections/{collectionResponse.Id}/add", requestBody);
 				response.EnsureSuccessStatusCode();
 			}

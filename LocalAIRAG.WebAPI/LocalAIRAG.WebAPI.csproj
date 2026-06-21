@@ -11,10 +11,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Controllers\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\LocalAIRAG.Application\LocalAIRAG.Application.csproj" />
     <ProjectReference Include="..\LocalAIRAG.Infrastructure\LocalAIRAG.Infrastructure.csproj" />
   </ItemGroup>
