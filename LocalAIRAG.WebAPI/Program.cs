@@ -21,6 +21,8 @@ builder.Services.AddHttpClient();
 builder.Services.AddScoped<IEmbeddingService, OllamaService>();
 builder.Services.AddScoped<IVariableLlmService, OllamaService>();
 
+builder.Services.AddSingleton<ISecretService, VaultService>();
+
 // 🗄️ 3. ÇÖZÜM: Vektör Veritabanı (ChromaDB) HttpClient Kaydı (Yorum satırını kaldırdık ve temizledik)
 builder.Services.AddHttpClient<IVectorDbService, ChromaDbService>(client =>
 {

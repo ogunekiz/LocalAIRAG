@@ -42,7 +42,10 @@ namespace LocalAIRAG.WebAPI.Controllers
 			if (string.IsNullOrWhiteSpace(question))
 				return BadRequest("Soru boş olamaz.");
 
-			var query = new AskQuestionQuery(question);
+			// Mevcut tırnakları (varsa) tamamen temizleyip, kesin olarak tırnak içine alıyoruz
+			var formattedQuestion = $"\"{question.Trim().Trim('"')}\"";
+
+			var query = new AskQuestionQuery(formattedQuestion);
 			var response = await _mediator.Send(query);
 
 			return Ok(response);

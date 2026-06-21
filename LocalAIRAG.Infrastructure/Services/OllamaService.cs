@@ -7,11 +7,12 @@ namespace LocalAIRAG.Infrastructure.Services
 	public class OllamaService : IVariableLlmService, IEmbeddingService
 	{
 		private readonly IHttpClientFactory _httpClientFactory;
-		private const string GeminiApiKey = "GEMINI_API_KEY_GIR";
+		private readonly ISecretService _secretService; // Vault için eklendi
 
-		public OllamaService(IHttpClientFactory httpClientFactory)
+		public OllamaService(IHttpClientFactory httpClientFactory, ISecretService secretService)
 		{
 			_httpClientFactory = httpClientFactory;
+			_secretService = secretService;
 		}
 
 		// 🧠 YEREL EMBEDDING GÖREVİ (Docker'daki Ollama'ya gider)
@@ -35,8 +36,12 @@ namespace LocalAIRAG.Infrastructure.Services
 		// 🌐 BULUT LLM GÖREVİ (Doğrudan Google Sunucularına gider)
 		public async Task<string> GenerateResponseAsync(string prompt, string systemPrompt)
 		{
+
+			// 🔑 API Anahtarını canlı olarak HashiCorp Vault'tan çekiyoruz!
+			string geminiApiKey = await _secretService.GetSecretAsync("gemini_key");
+
 			// Modeli en güncel kararlı sürüm olan gemini-2.5-flash olarak güncelledik
-			var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={GeminiApiKey}";
+			var url = $"https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key={geminiApiKey}";
 
 			var requestBody = new
 			{

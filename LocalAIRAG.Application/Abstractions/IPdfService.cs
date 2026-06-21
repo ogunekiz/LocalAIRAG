@@ -2,6 +2,6 @@
 {
 	public interface IPdfService
 	{
-		Task<string> ExtractTextAsync(Stream pdfStream);
+		Task<string> ExtractTextAsync(Stream fileStream, string fileName);
 	}
 }

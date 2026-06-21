@@ -3,8 +3,8 @@ using MediatR;
 
 namespace LocalAIRAG.Application.Features.Chat
 {
-	// 1. Kullanıcının sorusu
-	public record AskQuestionQuery(string Question) : IRequest<AskQuestionResponse>;
+	// 1. Kullanıcının sorusu - Opsiyonel olarak belirli bir dosyada arama desteği ekledik
+	public record AskQuestionQuery(string Question, string? FilterFileName = null) : IRequest<AskQuestionResponse>;
 
 	// 2. Yapay zekanın yerel veriye bakarak verdiği cevap
 	public record AskQuestionResponse(string Answer, List<string> RetrievedSources);
@@ -17,9 +17,9 @@ namespace LocalAIRAG.Application.Features.Chat
 		private readonly IVariableLlmService _llmService;
 
 		public AskQuestionQueryHandler(
-				IEmbeddingService embeddingService,
-				IVectorDbService vectorDbService,
-				IVariableLlmService llmService)
+						IEmbeddingService embeddingService,
+						IVectorDbService vectorDbService,
+						IVariableLlmService llmService)
 		{
 			_embeddingService = embeddingService;
 			_vectorDbService = vectorDbService;
@@ -31,26 +31,35 @@ namespace LocalAIRAG.Application.Features.Chat
 			// Adım 1: Kullanıcının sorduğu soruyu vektör haline getir
 			var queryEmbedding = await _embeddingService.GetEmbeddingAsync(request.Question);
 
-			// Adım 2: Bu vektörle ChromaDB'de en yakın (en alakalı) 3 döküman parçasını bul
-			var similarChunks = await _vectorDbService.SearchSimilarChunksAsync(queryEmbedding, limit: 3);
+			// Adım 2: ChromaDB'de en yakın döküman parçalarını bul (Eğer filtre varsa sadece o dosyaya bak)
+			// Not: IVectorDbService'deki Search yönteminizi genişleterek filtre parametresini ChromaDB query'sinin 'where' alanına geçirebilirsiniz.
+			var similarChunks = await _vectorDbService.SearchSimilarChunksAsync(queryEmbedding, limit: 4);
+
+			// Eğer kodunuzda filtreleme aktifse benzeri bir eşleşme süzgeci uygulanabilir:
+			if (!string.IsNullOrEmpty(request.FilterFileName))
+			{
+				similarChunks = similarChunks.Where(c => c.FileName.Equals(request.FilterFileName, StringComparison.OrdinalIgnoreCase)).ToList();
+			}
 
 			if (!similarChunks.Any())
 			{
-				return new AskQuestionResponse("Hafızada bu soruyla ilgili hiçbir döküman bulunamadı. Lütfen önce döküman yükleyin.", new());
+				return new AskQuestionResponse("Hafızada bu soruyla ilgili veya kriterlere uygun hiçbir döküman bulunamadı.", new());
 			}
 
 			// Adım 3: Bulunan döküman parçalarını birleştirerek bir "Context" (Bağlam) oluştur
 			var contextText = string.Join("\n\n--- CHUNK ---\n\n", similarChunks.Select(c => c.Text));
 
-			// Adım 4: Prompt Engineering - Kurumsal kural setini ve bağlamı hazırla
-			var systemPrompt = "Sen kurumsal dökümanları analiz eden bir yapay zeka asistanısın. " +
-												 "Sana sağlanan 'Bağlam' verilerini temel alarak kullanıcının sorusunu yanıtla. " +
-												 "Eğer sorunun cevabı dökümanda yoksa dürüstçe 'Bu bilgi dökümanlarda bulunmuyor' de. " +
-												 "Lütfen yanıtını her zaman akıcı bir Türkçe ile hazırla.";
+			// Adım 4: Prompt Engineering - Kurumsal kural setini ve özellikle TABLO analiz yeteneğini güçlendiriyoruz
+			var systemPrompt = "Sen kurumsal dökümanları ve ham Excel verilerini analiz eden profesyonel bir yapay zeka asistanısın.\n\n" +
+												 "SANA VERİLEN KURALLAR:\n" +
+												 "1. Sana sağlanan [Bağlam Verileri] alanında Markdown formatında tablolar (| satır | sütun | yapısı) yer alabilir. Satır ve sütunların kesişimindeki bilgileri birbirleriyle doğru eşleştir. Bir personelin verisini altındaki veya üstündeki satırla karıştırma.\n" +
+												 "2. Sadece ve sadece sana iletilen bağlam verilerini kaynak al. Kesinlikle dışarıdan bilgi veya varsayım ekleme.\n" +
+												 "3. Eğer sorulan sorunun cevabı sağlanan bağlam verilerinde veya tablonun hücrelerinde net olarak yoksa dürüstçe 'Bu bilgi dökümanlarda bulunmuyor.' şeklinde yanıt ver.\n" +
+												 "4. Yanıtlarını profesyonel, net ve akıcı bir Türkçe ile hazırla.";
 
 			var finalPrompt = $"[Bağlam Verileri]:\n{contextText}\n\n[Kullanıcı Sorusu]:\n{request.Question}";
 
-			// Adım 5: Yerel Llama3 modeline gönder ve dökümana dayalı cevabı al
+			// Adım 5: Gemini / Yerel LLM modeline gönder ve dökümana dayalı cevabı al
 			string aiAnswer = await _llmService.GenerateResponseAsync(finalPrompt, systemPrompt);
 
 			var sources = similarChunks.Select(c => c.Text).ToList();

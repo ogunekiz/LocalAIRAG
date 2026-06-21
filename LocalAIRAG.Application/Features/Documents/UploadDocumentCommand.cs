@@ -31,10 +31,11 @@ namespace LocalAIRAG.Application.Features.Documents
 		{
 			try
 			{
-				// Adım 1: PDF içerisindeki ham metni oku
-				string fullText = await _pdfService.ExtractTextAsync(request.FileStream);
+				// 🛠️ ÇÖZÜM: request'ten gelen FileName bilgisini de metoda argüman olarak geçiyoruz
+				string fullText = await _pdfService.ExtractTextAsync(request.FileStream, request.FileName);
+
 				if (string.IsNullOrWhiteSpace(fullText))
-					return new UploadDocumentResponse(false, "PDF içeriği boş veya okunamadı.", 0);
+					return new UploadDocumentResponse(false, "Dosya içeriği boş veya okunamadı.", 0);
 
 				// Adım 2: Metni 500'er karakterlik parçalara (Chunk) böl
 				var textChunks = SplitIntoChunks(fullText, chunkSize: 500, overlap: 50);
@@ -50,7 +51,10 @@ namespace LocalAIRAG.Application.Features.Documents
 					{
 						DocumentId = documentId,
 						Text = textChunk,
-						Embedding = embedding
+						Embedding = embedding,
+						// 💡 İLERİYE YATIRIM: ChromaDB için metadata alanlarını dolduruyoruz
+						FileName = request.FileName,
+						Extension = Path.GetExtension(request.FileName).ToLower()
 					});
 				}
 
